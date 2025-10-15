@@ -70,3 +70,25 @@ func SummaryExpenses(db *sql.DB) {
 		fmt.Printf("Total expenses: R$%d\n", amount)
 	}
 }
+
+func DeleteExpense(id int, db *sql.DB) {
+	deleteExpense := `
+		delete
+		from expenses
+		where id = ?
+	`
+
+	res, err := db.Exec(deleteExpense, id)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	l, err := res.RowsAffected()
+
+	if l != 1 {
+		log.Fatalf("No rows affected. ID %v not found\n", id)
+	} else {
+		fmt.Printf("Expense with ID %v deleted sucessfully\n", id)
+	}
+}
