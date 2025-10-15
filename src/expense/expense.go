@@ -30,7 +30,8 @@ func ListExpenses(db *sql.DB) {
 	var description, createdAt, updatedAt string
 
 	listExpenses := `
-		select id, description, amount, createdAt, updatedAt from expenses
+		select id, description, amount, createdAt, updatedAt
+		from expenses
 	`
 	rows, err := db.Query(listExpenses)
 
@@ -46,5 +47,26 @@ func ListExpenses(db *sql.DB) {
 		}
 
 		fmt.Printf("ID: %02d, description: %s, amount: %d, createdAt: %v\n", id, description, amount, createdAt)
+	}
+}
+
+func SummaryExpenses(db *sql.DB) {
+	var amount int
+
+	summaryExpenses := `
+		select sum(amount)
+		from expenses
+	`
+
+	rows, err := db.Query(summaryExpenses)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for rows.Next() {
+		rows.Scan(&amount)
+
+		fmt.Printf("Total expenses: R$%d\n", amount)
 	}
 }

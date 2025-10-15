@@ -58,6 +58,9 @@ func main() {
 
 		expense.ListExpenses(db)
 
+	case "summary":
+		expense.SummaryExpenses(db)
+
 	default:
 		fmt.Printf("Command not recognized: %v!", args[0])
 	}
