@@ -27,8 +27,8 @@ func Seed() {
 			"id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 			"description" text,
 			"amount" integer,
-			"createdAt" text,
-			"updatedAt" text
+			"createdAt" date,
+			"updatedAt" date
 		)
 	`
 

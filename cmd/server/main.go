@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -26,6 +27,11 @@ func main() {
 
 	switch args[0] {
 	case "add":
+		if len(args) > 3 {
+			fmt.Println("Too much arguments!")
+			os.Exit(1)
+		}
+
 		var description string
 		var amount int
 		var err error
@@ -43,6 +49,14 @@ func main() {
 		}
 
 		expense.AddExpense(description, amount, db)
+
+	case "list":
+		if len(args) > 1 {
+			fmt.Println("Too much arguments!")
+			os.Exit(1)
+		}
+
+		expense.ListExpenses(db)
 
 	default:
 		fmt.Printf("Command not recognized: %v!", args[0])
