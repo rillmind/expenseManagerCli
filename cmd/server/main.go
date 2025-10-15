@@ -1,71 +1,105 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"strconv"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rillmind/expenseManagerCli/db"
 	"github.com/rillmind/expenseManagerCli/src/expense"
 	"github.com/spf13/pflag"
 )
 
 func main() {
-	descriptionFlag := pflag.StringP("description", "d", "", "Description of the expense.")
-	amountFlag := pflag.IntP("amount", "a", 0, "Amount of the expense")
+	db := db.Connect()
+
+	dFlag := pflag.StringP("description", "d", "", "Description of the expense.")
+	aFlag := pflag.Float64P("amount", "a", 0, "Amount of the expense")
+
+	pflag.Usage = printUsage
 
 	pflag.Parse()
 
 	args := pflag.Args()
 
-	db, err := sql.Open("sqlite3", "./db/sqlite.db")
-
-	if err != nil {
-		fmt.Println(err)
-	}
-
 	switch args[0] {
 	case "add":
-		var description string
-		var amount int
-		var err error
-
 		if len(args) > 3 {
-			log.Fatal("Too much arguments!")
+			log.Fatalln("Too much arguments!")
 		}
 
-		if *descriptionFlag != "" || *amountFlag != 0 {
-			description = *descriptionFlag
-			amount = *amountFlag
-		} else {
-			description = args[1]
-			amount, err = strconv.Atoi(args[2])
+		if len(args) < 3 {
+			log.Fatalln("Not enough arguments!")
+		}
 
-			if err != nil {
-				fmt.Println(err)
-			}
+		description := args[1]
+		amount, err := strconv.ParseFloat(args[2], 64)
+
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		if *dFlag != "" || *aFlag != 0 {
+			description = *dFlag
+			amount = *aFlag
 		}
 
 		expense.AddExpense(description, amount, db)
 
 	case "list":
 		if len(args) > 1 {
-			log.Fatal("Too much arguments!")
+			log.Fatalln("Too much arguments!")
+		}
+
+		if len(args) < 1 {
+			log.Fatalln("Not enough arguments!")
 		}
 
 		expense.ListExpenses(db)
 
 	case "summary":
 		if len(args) > 2 {
-			log.Fatal("Too much arguments!")
+			log.Fatalln("Too much arguments!")
+		}
+
+		if len(args) < 2 {
+			log.Fatalln("Not enough arguments!")
 		}
 
 		expense.SummaryExpenses(db)
 
+	case "update":
+		if len(args) > 4 {
+			log.Fatalln("Too much arguments!")
+		}
+
+		if len(args) < 4 {
+			log.Fatalln("Not enough arguments!")
+		}
+
+		id, err := strconv.Atoi(args[1])
+		description := args[2]
+		amount, err := strconv.ParseFloat(args[3], 64)
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if *dFlag != "" || *aFlag != 0 {
+			description = *dFlag
+			amount = *aFlag
+		}
+
+		expense.UpdateExpense(id, description, amount, db)
+
 	case "delete":
 		if len(args) > 2 {
 			log.Fatal("Too much arguments!")
+		}
+
+		if len(args) < 2 {
+			log.Fatalln("Not enough arguments!")
 		}
 
 		id, err := strconv.Atoi(args[1])
@@ -79,4 +113,27 @@ func main() {
 	default:
 		fmt.Printf("Command not recognized: %v!", args[0])
 	}
+}
+
+func printUsage() {
+	fmt.Printf(`Expense Manager CLI - Manage your expenses from the command line
+
+Usage:
+	expense-tracker [options] <command> [arguments]
+
+Options:
+	-v    Activate verbose mode, displaying more operation details
+
+Commands:
+	add <description> <amount>             Add a new expense
+	list                                   List all tasks
+	summary                                Show how much you spent at all
+	update <id> <description> <amount>     Update a expense
+	delete <id>                            Delete a expense
+
+Examples:
+	expense-tracker add "Groceries" 12.50
+	expense-tracker list
+	expense-tracker update 1 "Summer groceries" 12.50
+`)
 }

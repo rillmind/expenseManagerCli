@@ -9,18 +9,20 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func Seed() {
-	dbFile := "./db/sqlite.db"
-
-	os.Remove(dbFile)
-
-	db, err := sql.Open("sqlite3", dbFile)
+func Connect() *sql.DB {
+	db, err := sql.Open("sqlite3", "./db/sqlite.db")
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	defer db.Close()
+	return db
+}
+
+func Seed() {
+	os.Remove("./db/sqlite.db")
+
+	db := Connect()
 
 	createTable := `
 		create table expenses (
