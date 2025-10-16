@@ -16,6 +16,7 @@ func main() {
 
 	dFlag := pflag.StringP("description", "d", "", "Description of the expense.")
 	aFlag := pflag.Float64P("amount", "a", 0, "Amount of the expense")
+	mFlag := pflag.IntP("month", "m", 0, "Month of the year to restrict")
 
 	pflag.Usage = printUsage
 
@@ -59,15 +60,14 @@ func main() {
 		expense.ListExpenses(db)
 
 	case "summary":
-		if len(args) > 2 {
-			log.Fatalln("Too much arguments!")
-		}
+		var month int
 
-		if len(args) < 2 {
-			log.Fatalln("Not enough arguments!")
+		if *mFlag != 0 {
+			month = *mFlag
+			expense.SummaryExpensesByMonth(month, db)
+		} else {
+			expense.SummaryExpenses(db)
 		}
-
-		expense.SummaryExpenses(db)
 
 	case "update":
 		if len(args) > 4 {
