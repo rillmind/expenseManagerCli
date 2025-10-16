@@ -29,9 +29,11 @@ func AddExpense(description string, amount float64, db *sql.DB) {
 }
 
 func ListExpenses(db *sql.DB) {
-	var id, amount int
-	var description string
-	var createdAt, updatedAt time.Time
+	var (
+		id, amount           int
+		description          string
+		createdAt, updatedAt time.Time
+	)
 
 	query := `
 		select id, description, amount, createdAt, updatedAt
